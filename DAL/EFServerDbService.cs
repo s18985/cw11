@@ -10,18 +10,24 @@ namespace cw11.DAL
 {
     public class EFServerDbService : IDoctorDbService
     {
+        private CodeFirstContext _context;
+
+        public EFServerDbService(CodeFirstContext context)
+        {
+            _context = context;
+        } 
+
+
         public AddDoctorResponse AddDoctor(AddDoctorRequest request)
         {
-            var db = new CodeFirstContext();
-
             var d = new Doctor
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email
             };
-            db.Doctor.Add(d);
-            db.SaveChanges();
+            _context.Doctor.Add(d);
+            _context.SaveChanges();
 
             var res = new AddDoctorResponse
             {
@@ -36,9 +42,7 @@ namespace cw11.DAL
 
         public bool DeleteDoctor(int id)
         {
-            var db = new CodeFirstContext();
-
-            var d = db.Doctor.Where(x => x.IdDoctor == id).FirstOrDefault();
+            var d = _context.Doctor.Where(x => x.IdDoctor == id).FirstOrDefault();
 
             if (d == null)
             {
@@ -46,26 +50,22 @@ namespace cw11.DAL
             }
             else
             {
-                db.Remove(d);
-                db.SaveChanges();
+                _context.Remove(d);
+                _context.SaveChanges();
                 return true;
             }
         }
 
         public List<Doctor> GetDoctors()
         {
-            var db = new CodeFirstContext();
-
-            var res = db.Doctor.ToList();
+            var res = _context.Doctor.ToList();
 
             return res;
         }
 
         public ModifyDoctorResponse ModifyDoctor(int id, ModifyDoctorRequest request)
         {
-            var db = new CodeFirstContext();
-
-            var d = db.Doctor.Where(x => x.IdDoctor == id).FirstOrDefault();
+            var d = _context.Doctor.Where(x => x.IdDoctor == id).FirstOrDefault();
 
             if (d == null)
             {
@@ -77,7 +77,7 @@ namespace cw11.DAL
                 d.FirstName = request.FirstName;
                 d.LastName = request.LastName;
                 d.Email = request.Email;
-                db.SaveChanges();
+                _context.SaveChanges();
 
                 ModifyDoctorResponse response = new ModifyDoctorResponse
                 {
